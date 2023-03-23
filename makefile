@@ -33,7 +33,7 @@ build:
 	$(EXPORTS) go build -ldflags "-X github.com/petara94/go-auth.Version=$(GIT_TAG)-$(GIT_REV)" -o $(OUT) ./cmd/$(CMD)
 
 run:
-	$(EXPORTS) go run -ldflags "-X github.com/petara94/go-auth.Version=$(GIT_TAG)-$(GIT_REV)" -o $(OUT) ./cmd/$(CMD)
+	$(EXPORTS) go run -ldflags "-X github.com/petara94/go-auth.Version=$(GIT_TAG)-$(GIT_REV)" ./cmd/$(CMD)
 .PHONY: run
 
 test:

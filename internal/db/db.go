@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sort"
 	"sync"
 
 	"github.com/petara94/mib-go/internal/pkg"
@@ -36,8 +37,9 @@ type DB struct {
 	Filename string
 	Password string
 
-	mu    sync.Mutex
-	Image Image
+	mu     sync.Mutex
+	Image  Image
+	logins []string
 }
 
 func NewDB(filename string, password string) *DB {
@@ -94,7 +96,44 @@ func (d *DB) Create(user User) error {
 
 	d.Image.Users[user.Login] = user
 
+	d.logins = append(d.logins, user.Login)
+	sort.Strings(d.logins)
+
 	return d.Save()
+}
+
+// GetWithPagination returns users with pagination
+func (d *DB) GetWithPagination(page int, limit int) ([]*User, error) {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+
+	if page < 1 {
+		return nil, fmt.Errorf("page must be greater than 0 (page: %d)", page)
+	}
+
+	if limit < 1 {
+		return nil, fmt.Errorf("limit must be greater than 0 (limit: %d)", limit)
+	}
+
+	var users []*User
+
+	from := (page - 1) * limit
+	to := page * limit
+
+	if from > len(d.logins) {
+		return []*User{}, nil
+	}
+
+	if to > len(d.logins) {
+		to = len(d.logins)
+	}
+
+	for _, login := range d.logins[from:to] {
+		u := d.Image.Users[login]
+		users = append(users, &u)
+	}
+
+	return users, nil
 }
 
 func (d *DB) GetByLogin(login string) (*User, error) {
@@ -124,6 +163,9 @@ func (d *DB) Update(login string, user User) (*User, error) {
 
 	if login != user.Login {
 		delete(d.Image.Users, login)
+
+		d.logins = append(d.logins, user.Login)
+		sort.Strings(d.logins)
 	}
 
 	d.Image.Users[user.Login] = user
@@ -136,6 +178,14 @@ func (d *DB) Delete(login string) error {
 	defer d.mu.Unlock()
 
 	delete(d.Image.Users, login)
+
+	for i, l := range d.logins {
+		if l == login {
+			d.logins = append(d.logins[:i], d.logins[i+1:]...)
+			break
+		}
+	}
+	sort.Strings(d.logins)
 
 	return d.Save()
 }
@@ -165,6 +215,20 @@ func Open(filename, password string) (*DB, error) {
 	if err != nil {
 		return nil, fmt.Errorf("can't unmarshal json: %w", err)
 	}
+
+	// check is admin exists
+	_, ok := db.Image.Users["admin"]
+	if !ok {
+		return nil, fmt.Errorf("db file is corrupted: admin user not found")
+	}
+
+	// create logins list
+	db.logins = make([]string, 0, len(db.Image.Users))
+	for login := range db.Image.Users {
+		db.logins = append(db.logins, login)
+	}
+
+	sort.Strings(db.logins)
 
 	return db, nil
 }

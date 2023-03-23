@@ -42,14 +42,24 @@ func (a *App) adminLoop() {
 		command := GetAdminCommand(a.getIntFromConsole())
 
 		switch command {
+		case GetUsersWithPagination:
+			a.getUsersWithPagination()
+		case GetUser:
+			a.getUser()
+		case UpdateUser:
+			a.updateUser()
 		case CreateUser:
 			a.createUser()
 		case ChangePassword:
 			a.changePassword()
 		case DeleteUser:
+			a.deleteUser()
+		case CreateUserWithLogin:
+			a.createWithLogin()
 		case SetCheck:
+			a.setCheckPassword()
 		case SetBlock:
-		case SetAdmin:
+			a.setBlock()
 		case Exit:
 			fmt.Println("bye")
 			return

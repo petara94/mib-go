@@ -98,9 +98,7 @@ func (a *App) register() bool {
 
 	password := pkg.ReadPassword("Enter password: ")
 
-	fmt.Print("Enter password again: ")
-	var passwordAgain string
-	_, _ = fmt.Scanln(&passwordAgain)
+	passwordAgain := pkg.ReadPassword("Enter password again: ")
 
 	if password != passwordAgain {
 		fmt.Println("passwords are not equal")
@@ -137,11 +135,12 @@ func (a *App) register() bool {
 	// create user
 	user := db.User{
 		Login:     login,
-		Password:  password,
 		FirstName: firstName,
 		LastName:  lastName,
 		CheckPass: true,
 	}
+	user.SetPassword(password)
+
 	err = a.users.Create(user)
 	if err != nil {
 		fmt.Println("can't create user")

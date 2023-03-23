@@ -5,15 +5,15 @@ import (
 )
 
 const (
-	GetAllUsers = "get all users"
-	GetUser     = "get user"
-	UpdateUser  = "update user"
-	CreateUser  = "create user"
-	DeleteUser  = "delete user"
+	GetUsersWithPagination = "get users with pagination"
+	GetUser                = "get user"
+	UpdateUser             = "update user"
+	CreateUser             = "create user"
+	CreateUserWithLogin    = "create user with login"
+	DeleteUser             = "delete user"
 
 	SetBlock = "set block user"
 	SetCheck = "set check password"
-	SetAdmin = "set admin"
 
 	ChangePassword = "change password"
 
@@ -29,14 +29,14 @@ var (
 	AdminCommands = []string{
 		Exit,
 		ChangePassword,
-		GetAllUsers,
+		GetUsersWithPagination,
 		GetUser,
 		UpdateUser,
 		CreateUser,
+		CreateUserWithLogin,
 		DeleteUser,
 		SetBlock,
 		SetCheck,
-		SetAdmin,
 	}
 )
 

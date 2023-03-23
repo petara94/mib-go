@@ -29,10 +29,6 @@ func (a *App) login() bool {
 	var login string
 	_, _ = fmt.Scanln(&login)
 
-	fmt.Print("Enter password: ")
-	var password string
-	_, _ = fmt.Scanln(&password)
-
 	// get user from db
 	currentUser, err := a.users.GetByLogin(login)
 	if err != nil {
@@ -48,6 +44,15 @@ func (a *App) login() bool {
 		var newPassword string
 		_, _ = fmt.Scanln(&newPassword)
 
+		fmt.Print("Enter password again: ")
+		var passwordAgain string
+		_, _ = fmt.Scanln(&passwordAgain)
+
+		if newPassword != passwordAgain {
+			fmt.Println("passwords are not equal")
+			return false
+		}
+
 		currentUser.SetPassword(newPassword)
 
 		// update currentUser
@@ -61,6 +66,10 @@ func (a *App) login() bool {
 
 		return false
 	}
+
+	fmt.Print("Enter password: ")
+	var password string
+	_, _ = fmt.Scanln(&password)
 
 	if currentUser.IsBlocked && currentUser.Login != "admin" {
 		fmt.Println("user is blocked")

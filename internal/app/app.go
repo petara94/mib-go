@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/petara94/mib-go/internal/db"
 	"github.com/petara94/mib-go/internal/services"
+	"strconv"
 )
 
 type App struct {
@@ -51,7 +52,6 @@ func (a *App) adminLoop() {
 			return
 		default:
 			fmt.Println("unknown command")
-			return
 		}
 	}
 }
@@ -69,17 +69,31 @@ func (a *App) userLoop() {
 			return
 		default:
 			fmt.Println("unknown command")
-			return
 		}
 	}
 }
 
 func (a *App) getIntFromConsole() int {
-	fmt.Printf("%s@db $ ", a.currentUser.Login)
-	var commandIndex int
-	_, err := fmt.Scanln(&commandIndex)
-	if err != nil {
-		return -1
+	var (
+		commandIndex int
+		err          error
+	)
+
+	for {
+		fmt.Printf("%s@db $ ", a.currentUser.Login)
+		var command string
+		_, _ = fmt.Scanln(&command)
+
+		if command == "" {
+			continue
+		}
+
+		// convert string to int
+		commandIndex, err = strconv.Atoi(command)
+		if err != nil {
+			return -1
+		}
+
+		return commandIndex
 	}
-	return commandIndex
 }

@@ -2,6 +2,7 @@ package db
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"sync"
@@ -145,9 +146,13 @@ func Open(filename, password string) (*DB, error) {
 		return nil, err
 	}
 
-	jsonData, err := thash.DecryptWithPass(string(data), password)
-	if err != nil {
-		return nil, err
+	var jsonData = string(data)
+
+	if password != "" {
+		jsonData, err = thash.DecryptWithPass(string(data), password)
+		if err != nil {
+			return nil, fmt.Errorf("can't decrypt data: %w", err)
+		}
 	}
 
 	db := &DB{
@@ -158,7 +163,7 @@ func Open(filename, password string) (*DB, error) {
 
 	err = json.Unmarshal([]byte(jsonData), &db.Image)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("can't unmarshal json: %w", err)
 	}
 
 	return db, nil
@@ -175,13 +180,13 @@ func (d *DB) Save() error {
 	if d.Password != "" {
 		outData, err = thash.EncryptWithPass(string(data), d.Password)
 		if err != nil {
-			return err
+			return fmt.Errorf("can't encrypt data: %w", err)
 		}
 	}
 
 	err = os.WriteFile(d.Filename, []byte(outData), 0666)
 	if err != nil {
-		return err
+		return fmt.Errorf("can't write file: %w", err)
 	}
 
 	return nil

@@ -40,13 +40,10 @@ func (a *App) login() bool {
 	if currentUser.Login == "admin" && currentUser.Password == "" {
 		// admin must change password
 		fmt.Println("admin must change password")
-		fmt.Print("Enter new password: ")
-		var newPassword string
-		_, _ = fmt.Scanln(&newPassword)
 
-		fmt.Print("Enter password again: ")
-		var passwordAgain string
-		_, _ = fmt.Scanln(&passwordAgain)
+		newPassword := pkg.ReadPassword("Enter new password: ")
+
+		passwordAgain := pkg.ReadPassword("Enter password again: ")
 
 		if newPassword != passwordAgain {
 			fmt.Println("passwords are not equal")
@@ -67,9 +64,7 @@ func (a *App) login() bool {
 		return false
 	}
 
-	fmt.Print("Enter password: ")
-	var password string
-	_, _ = fmt.Scanln(&password)
+	password := pkg.ReadPassword("Enter password: ")
 
 	if currentUser.IsBlocked && currentUser.Login != "admin" {
 		fmt.Println("user is blocked")
@@ -101,9 +96,7 @@ func (a *App) register() bool {
 		return false
 	}
 
-	fmt.Print("Enter password: ")
-	var password string
-	_, _ = fmt.Scanln(&password)
+	password := pkg.ReadPassword("Enter password: ")
 
 	fmt.Print("Enter password again: ")
 	var passwordAgain string

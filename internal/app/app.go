@@ -5,6 +5,7 @@ import (
 	"github.com/petara94/mib-go/internal/db"
 	"github.com/petara94/mib-go/internal/services"
 	"strconv"
+	"time"
 )
 
 type App struct {
@@ -22,6 +23,7 @@ func (a *App) Run() error {
 			fmt.Println("too many attempts")
 			return nil
 		}
+		time.Sleep(time.Second)
 	}
 
 	switch a.currentUser.Login {
@@ -40,19 +42,21 @@ func (a *App) adminLoop() {
 		command := GetAdminCommand(a.getIntFromConsole())
 
 		switch command {
-		case "create_user":
-		case "change_password":
+		case CreateUser:
+			a.createUser()
+		case ChangePassword:
 			a.changePassword()
-		case "delete_user":
-		case "set_block_user":
-		case "set_check_password":
-		case "set_admin":
-		case "exit":
+		case DeleteUser:
+		case SetCheck:
+		case SetBlock:
+		case SetAdmin:
+		case Exit:
 			fmt.Println("bye")
 			return
 		default:
 			fmt.Println("unknown command")
 		}
+		time.Sleep(time.Second)
 	}
 }
 
@@ -62,14 +66,15 @@ func (a *App) userLoop() {
 		command := GetUserCommand(a.getIntFromConsole())
 
 		switch command {
-		case "change_password":
+		case ChangePassword:
 			a.changePassword()
-		case "exit":
+		case Exit:
 			fmt.Println("bye")
 			return
 		default:
 			fmt.Println("unknown command")
 		}
+		time.Sleep(time.Second)
 	}
 }
 

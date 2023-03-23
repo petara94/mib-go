@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/petara94/mib-go/internal/db"
 	"github.com/petara94/mib-go/internal/pkg"
-	"log"
 )
 
 // loginOrRegister login or register user
@@ -58,9 +57,9 @@ func (a *App) login() bool {
 			return false
 		}
 
-		log.Println("admin password changed. please login again")
+		fmt.Println("admin password changed. please login again")
 
-		return true
+		return false
 	}
 
 	if currentUser.IsBlocked && currentUser.Login != "admin" {
@@ -69,7 +68,7 @@ func (a *App) login() bool {
 	}
 
 	// check password
-	if err != nil {
+	if !currentUser.PasswordEqual(password) {
 		fmt.Println("wrong login or password")
 		return false
 	}
@@ -88,6 +87,7 @@ func (a *App) register() bool {
 	// check if user exists
 	_, err := a.users.GetByLogin(login)
 	if err == nil {
+
 		fmt.Println("user already exists")
 		return false
 	}

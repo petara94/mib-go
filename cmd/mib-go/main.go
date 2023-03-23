@@ -1,13 +1,16 @@
 package main
 
 import (
-	"github.com/urfave/cli/v2"
+	mib_app "github.com/petara94/mib-go/internal/app"
+	"github.com/petara94/mib-go/internal/db"
 	"log"
 	"os"
 	"sort"
+
+	"github.com/urfave/cli/v2"
 )
 
-var version = "unknown"
+var Version = "unknown"
 
 func main() {
 	app := cli.App{
@@ -15,11 +18,27 @@ func main() {
 		Commands: []*cli.Command{},
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:  "db",
-				Usage: "db file",
+				Name:    "db",
+				Usage:   "db file",
+				Aliases: []string{"d"},
+			},
+			&cli.StringFlag{
+				Name:    "pass",
+				Usage:   "db password",
+				Aliases: []string{"p"},
 			},
 		},
-		Version: version,
+		Version: Version,
+		Action: func(c *cli.Context) error {
+			repo := db.NewDB(c.String("db"), c.String("pass"))
+			app := mib_app.NewApp(repo)
+
+			if err := app.Run(); err != nil {
+				return err
+			}
+
+			return nil
+		},
 	}
 
 	sort.Sort(cli.FlagsByName(app.Flags))

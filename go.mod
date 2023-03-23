@@ -6,6 +6,7 @@ require (
 	github.com/ProtonMail/gopenpgp/v2 v2.6.1
 	github.com/pkg/errors v0.9.1
 	github.com/urfave/cli/v2 v2.25.0
+	google.golang.org/protobuf v1.30.0
 )
 
 require (

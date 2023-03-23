@@ -3,10 +3,11 @@ package db
 import (
 	"encoding/json"
 	"log"
-	"mib-go/internal/pkg"
-	"mib-go/internal/pkg/thash"
 	"os"
 	"sync"
+
+	"github.com/petara94/mib-go/internal/pkg"
+	"github.com/petara94/mib-go/internal/pkg/thash"
 )
 
 type User struct {
@@ -14,6 +15,7 @@ type User struct {
 	Password  string `json:"password"`
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
+	CheckPass bool   `json:"check_pass"`
 	IsBlocked bool   `json:"is_blocked"`
 }
 
@@ -38,7 +40,17 @@ type DB struct {
 }
 
 func NewDB(filename string, password string) *DB {
-	var db *DB
+	if filename == "" {
+		log.Fatal("filename is empty")
+	}
+
+	var db = &DB{
+		Filename: filename,
+		Password: password,
+		Image: Image{
+			Users: make(map[string]User),
+		},
+	}
 
 	// check is file exists
 	_, err := os.Stat(filename)
@@ -158,12 +170,16 @@ func (d *DB) Save() error {
 		return err
 	}
 
-	encrypted, err := thash.EncryptWithPass(string(data), d.Password)
-	if err != nil {
-		return err
+	var outData = string(data)
+
+	if d.Password != "" {
+		outData, err = thash.EncryptWithPass(string(data), d.Password)
+		if err != nil {
+			return err
+		}
 	}
 
-	err = os.WriteFile(d.Filename, []byte(encrypted), 0666)
+	err = os.WriteFile(d.Filename, []byte(outData), 0666)
 	if err != nil {
 		return err
 	}

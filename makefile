@@ -11,9 +11,13 @@ GIT_BRANCH := $$(git rev-parse --abbrev-ref HEAD)
 GIT_TAG := $(shell git describe --abbrev=0 --tags)
 GIT_REV := $(shell git rev-parse --short HEAD)
 
-prepare:
-	GOBIN="$$PWD/bin" go install -tags 'sqlite3' github.com/golang-migrate/migrate/v4/cmd/migrate@v4.15.2
+EXPORTS := env PATH="${PWD}/bin:${PATH}"
+
+prepare: install.tools
 .PHONY: prepare
+
+install.tools:
+.PHONY: install.tools
 
 config:
 	cp example.config.yml config.yml
@@ -30,11 +34,8 @@ migrations.create:
 
 build:
 	rm -rf $(OUT)
-	$(EXPORTS) go build -ldflags "-X github.com/petara94/go-auth.Version=$(GIT_TAG)-$(GIT_REV)" -o $(OUT) ./cmd/$(CMD)
-
-run:
-	$(EXPORTS) go run -ldflags "-X github.com/petara94/go-auth.Version=$(GIT_TAG)-$(GIT_REV)" ./cmd/$(CMD)
-.PHONY: run
+	echo $(GIT_TAG)-$(GIT_REV)
+	$(EXPORTS) go build -ldflags "-X main.Version=$(GIT_TAG)-$(GIT_REV)" -o $(OUT) ./cmd/$(CMD)
 
 test:
 	go test -count=1 -race -timeout 1m ./...
